@@ -50,7 +50,27 @@ public:
         }
         return vec;
     };
-    void perform_key(){
+    int prime(int nnn){
+        max_val = nnn * nnn;
+        std::vector<bool> is_prime(max_val + 1, true);
+        int count = 0;
+        int val = 0;
+        for(int i = 1; i <= max_val; i++){
+
+            if(is_prime[i]){
+                count++;
+                if(count == nnn){
+                    break;
+                }
+                val = i;
+            }
+            for(int j = i * i; j <= max_val; j += i){
+                is_prime[j] = false;
+            }
+        }
+        return val;
+    }
+    vector<int> perform_key(){
         vector<int> indexes;
         string key = "";
         int len = 0;
@@ -109,6 +129,7 @@ public:
                 indexes.push_back(v[i]);
             }
         }
+        return indexes;
     }
     vector<int> perf_right(){
         vector<int> indexes;

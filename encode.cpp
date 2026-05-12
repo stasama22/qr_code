@@ -14,13 +14,13 @@ private:
     int key_val;
     int length;
     int n;
-    vector<int> final_value;
     std::random_device rd;
-    std::mt19937 gen(rd());
+    std::mt19937 gen;
+    vector<int> final_value;
     vector<int> array = {2, 3, 5, 7, 11, 17, 67};
 
 public:
-    Encode(int num, int random_val) : num(num), key_val(key_val) {
+    Encode(int num, int random_val) : num(num), key_val(key_val), gen(rd()) {
         std::string s = std::to_string(num);
         length = s.size();
         n = 34 - length;
@@ -33,7 +33,7 @@ public:
     void put_value(vector<int> vec){
         for(int i = 0; i < vec.size(); i++){
             final_value[vec[i]] = random_value(0, 9);
-        }
+        }        std::mt19937 gen;
     };
     vector<int> find_duplikate(vector<int> vec){
         std::sort(vec.begin(), vec.end());
@@ -53,7 +53,7 @@ public:
         return vec;
     };
     int prime(int nnn){
-        max_val = nnn * nnn;
+        int max_val = nnn * nnn;
         std::vector<bool> is_prime(max_val + 1, true);
         int count = 0;
         int val = 0;
@@ -84,15 +84,15 @@ public:
             }
             key_val *= key_val;
         }
-        value = to_string(key_val);
+        string value = to_string(key_val);
         if(n % 2 != 0){
-            l = value.size();
+            int l = value.size();
             if(l % 2 == 0){
                 value = std::string(value.begin(), value.end() - 1);
             }
             bool flag = true;
             while(true){
-                current_len = value.size();
+                int current_len = value.size();
                 if(n == current_len){
                     break;
                 } else{
@@ -107,10 +107,11 @@ public:
         }
         for(int i = 0; i < value.size(); i+=2){
             if(value[i] == '0'){
-                int j = stoi(value[i + 1]);
-                indexes.push_back
+                int j = std::stoi(std::string(1, value[i]));
+                indexes.push_back(j);
             } else{
-                int j = stoi(value[i:i+1]);//мб не включительно
+                string dub = value.substr(i, 2);
+                int j = stoi(dub);
                 indexes.push_back(j);
             }
         }
@@ -145,15 +146,15 @@ public:
             }
             key_val *= key_val;
         }
-        value = to_string(key_val);
+        string value = to_string(key_val);
         if(length % 2 != 0){
-            l = value.size();
+            int l = value.size();
             if(l % 2 == 0){
                 value = std::string(value.begin(), value.end() - 1);
             }
             bool flag = true;
             while(true){
-                current_len = value.size();
+                int current_len = value.size();
                 if(length == current_len){
                     break;
                 } else{
@@ -167,7 +168,7 @@ public:
             }
         }
         for(int i = 0; i < value.size(); i++){
-            indexes[i] = stoi(value[i]);
+            indexes[i] = std::stoi(std::string(1, value[i]));
         }
         return indexes;
     }

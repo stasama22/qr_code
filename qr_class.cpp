@@ -5,17 +5,18 @@
 #include <fstream>
 #include "encode.cpp"
 
+
 class QR_build{
   private:
-    int num;
+    int64_t num;
     vector<int> num_vec;
-    int random_val;
+    int64_t random_val;
     vector<int> vect;
     std::unique_ptr<Encode> enc;
   public:
-    QR_build(int num, int random_num) : num(num), random_val(random_num) {
+    QR_build(int64_t num, int64_t random_val) : num(num), random_val(random_val) {
       enc = std::make_unique<Encode>(num, random_val);
-      int copy_num = num;
+      int64_t copy_num = num;
       while(copy_num > 0){
         num_vec.push_back(copy_num % 10);
         copy_num = copy_num / 10; 
@@ -51,9 +52,9 @@ std::string toBinary(int n) {
 }
 
 int main(){
-  int num = 0;
+  int64_t num = 0;
   std::cin >> num;
-  int random_word = 0;
+  int64_t random_word = 0;
   std::cin >> random_word;
   QR_build qr_build(num, random_word);
   qr_build.Perfom_full_desision();

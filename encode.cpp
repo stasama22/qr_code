@@ -10,17 +10,21 @@ using namespace std;
 
 class Encode{
 private:
-    int num;
-    int key_val;
+    int64_t num;
+    int64_t key_val;
     int length;
     int n;
     std::random_device rd;
     std::mt19937 gen;
     vector<int> final_value;
-    vector<int> array = {2, 3, 5, 7, 11, 17, 67};
+    vector<int64_t> array1 = {3037000480, 1518499861, 379624939, 60740005, 3037007};
+    
 
 public:
-    Encode(int num, int random_val) : num(num), key_val(key_val), gen(rd()) {
+    Encode(int n_val, int k_val) : gen(rd()) {
+        this->num = n_val;
+        this->key_val = k_val;
+
         std::string s = std::to_string(num);
         length = s.size();
         n = 34 - length;
@@ -72,19 +76,25 @@ public:
         }
         return val;
     }
-    vector<int> perform_key(){
+    vector<int> perform_key(){ // в связи с тем что изменилось начало может быть ошибочна длинна так что это нужно испраавть
         vector<int> indexes;
         string key = "";
         int len = 0;
+        int id = 0;
+
         while(true){
-            key = to_string(key_val);
             int len = key.size();
+            if(key_val >= 3037000499){
+                key = key + to_string(key_val);
+                key_val = key_val / array1[id];
+                id++;
+            }
             if(len > n){
                 break;
             }
             key_val *= key_val;
         }
-        string value = to_string(key_val);
+        string value = key;
         if(n % 2 != 0){
             int l = value.size();
             if(l % 2 == 0){
@@ -107,7 +117,7 @@ public:
         }
         for(int i = 0; i < value.size(); i+=2){
             if(value[i] == '0'){
-                int j = std::stoi(std::string(1, value[i]));
+                int j = std::stoi(std::string(1, value[i + 1]));
                 indexes.push_back(j);
             } else{
                 string dub = value.substr(i, 2);
@@ -120,7 +130,7 @@ public:
                 indexes[i] = indexes[i] % 34;
             }
         }
-        while(true){
+        while(true){ //ошибка с логикой абсолютно неверно работает
             vector<int> v = find_duplikate(indexes);
             if(v.empty()){
                 break;

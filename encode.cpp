@@ -20,7 +20,7 @@ private:
     vector<int64_t> array1 = {3037000480, 1518499861, 379624939, 69740005, 3037000}; 
 
 public:
-    Encode(int n_val, int k_val) : gen(rd()) {
+    Encode(int64_t n_val, int64_t k_val) : gen(rd()) {
         this->num = n_val;
         this->key_val = k_val;
 
@@ -159,15 +159,24 @@ public:
         vector<int> indexes;
         string key = "";
         int len = 0;
+        int id = 0;
         while(true){
-            key = to_string(key_val);
-            int len = key.size();
+            if(key_val >= 3037000499){
+                key = key + to_string(key_val);
+                len = key.size();
+                key_val = key_val / array1[id];
+                if(key_val > 30370004){
+                    key_val = key_val / 1902838;
+                }
+                id++;
+            }
             if(len > length){
+                key = key.substr(0, n);
                 break;
             }
             key_val *= key_val;
         }
-        string value = to_string(key_val);
+        string value = key;
         int l = value.size();
         if(l % 2 == 0){
             value = std::string(value.begin(), value.end() - 1);

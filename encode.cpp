@@ -16,7 +16,8 @@ private:
     int n;
     std::random_device rd;
     std::mt19937 gen;
-    vector<int> final_value;    
+    vector<int> final_value;   
+    vector<int64_t> array1 = {3037000480, 1518499861, 379624939, 69740005, 3037000}; 
 
 public:
     Encode(int n_val, int k_val) : gen(rd()) {
@@ -65,7 +66,7 @@ public:
         }
         return vect;
     }
-    vector<int> perform_key(){ // в связи с тем что изменилось начало может быть ошибочна длинна так что это нужно испраавть
+    vector<int> perform_key(){
         vector<int> indexes;
         string key = "";
         int len = 0;
@@ -137,6 +138,7 @@ public:
                 v[i] *= v[i];
                 v[i] = v[i] % 34;
                 indexes.push_back(v[i]);
+
             }
             idx++;
         }

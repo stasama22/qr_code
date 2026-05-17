@@ -1,3 +1,4 @@
+****
 #include <iostream>
 #include <random>
 #include <memory>
@@ -6,7 +7,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-#include "encode.cpp" // Твой класс Encode
+#include "encode.cpp"
 
 using namespace std;
 
@@ -77,13 +78,12 @@ void saveToBMP(const std::string& filename, const std::vector<std::vector<int>>&
     for (int i = 0; i < src_size; ++i) {
         for (int r = 0; r < scale; ++r) {
             for (int j = 0; j < src_size; ++j) {
-                // Строгое условие без инверсии: 1 = Белый (255), 0 = Черный (0)
                 unsigned char color = (matrix[i][j] == 1) ? 255 : 0;
                 
                 for (int c = 0; c < scale; ++c) {
-                    f.put(color); // B
-                    f.put(color); // G
-                    f.put(color); // R
+                    f.put(color);
+                    f.put(color);
+                    f.put(color);
                 }
             }
             for (int p = 0; p < padding; ++p) f.put(0);
@@ -93,8 +93,6 @@ void saveToBMP(const std::string& filename, const std::vector<std::vector<int>>&
     f.close();
     std::cout << "\nКартинка " << filename << " успешно сохранена!" << std::endl;
 }
-
-
 
 int main(){
   int64_t num = 0;
@@ -143,24 +141,6 @@ int main(){
       matrix[r+1][c+1] = flat_vector[idx+3];
   }
 
-  // std::ofstream outFile("result.pbm");
-
-  // if (outFile.is_open()) {
-  //     outFile << "P1\n";
-  //     outFile << "12 12\n";
-
-  //     for (int i = 0; i < 12; ++i) {
-  //         for (int j = 0; j < 12; ++j) {
-  //             outFile << !matrix[i][j] << " ";
-  //         }
-  //         outFile << "\n";
-  //     }
-
-  //     outFile.close();
-  //     std::cout << "Файл result.pbm успешно сохранен!" << std::endl;
-  // } else {
-  //     std::cerr << "Не удалось открыть файл для записи." << std::endl;
-  // }
   saveToBMP("qr_code.bmp", matrix, 20);
   return 0;
   

@@ -177,10 +177,10 @@ public:
             key_val *= key_val;
         }
         string value = key;
-        int l = value.size();
-        if(l % 2 == 0){
-            value = std::string(value.begin(), value.end() - 1);
-        }
+        // int l = value.size();
+        // if(l % 2 == 0){
+        //     value = std::string(value.begin(), value.end() - 1);
+        // }
         bool flag = true;
         while(true){
             int current_len = value.size();

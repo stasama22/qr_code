@@ -3,8 +3,12 @@
 #include <memory>
 #include <ctime>
 #include <fstream>
-#include "encode.cpp"
+#include <vector>
+#include <string>
+#include <algorithm>
+#include "encode.cpp" // Твой класс Encode
 
+using namespace std;
 
 class QR_build{
   private:
@@ -14,7 +18,7 @@ class QR_build{
     vector<int> vect;
     std::unique_ptr<Encode> enc;
   public:
-    QR_build(int64_t num, int64_t random_val) : num(num), random_val(random_val) {
+    QR_build(int64_t num, int64_t random_val) : num(num), random_val(random_val), vect(34) {
       enc = std::make_unique<Encode>(num, random_val);
       int64_t copy_num = num;
       while(copy_num > 0){
@@ -24,12 +28,14 @@ class QR_build{
     };
     void Perfom_full_desision(){
       int index = 0;
+      int index1 = 0;
       vector<int> vec = enc->perform_key();
       vector<int> val = enc->perf_right();
       for(int i = 0; i < 34; i++){
-        if (std::find(vec.begin(), vec.end(), i) != vec.end()){
-          vect[i] = val[index] ^ num_vec[i];
+        if (std::find(vec.begin(), vec.end(), i) == vec.end()){
+          vect[i] = val[index] ^ num_vec[index1];
           index++;
+          index1++;
         } else{
           vect[i] = enc->random_value(0, 9);
         }
@@ -40,16 +46,55 @@ class QR_build{
     }
 };
 
-std::string toBinary(int n) {
-  if (n == 0) return "0";
-  std::string r = "";
-  while (n != 0) {
-      r += (n % 2 == 0 ? "0" : "1");
-      n /= 2;
-  }
-  std::reverse(r.begin(), r.end());
-  return r;
+void saveToBMP(const std::string& filename, const std::vector<std::vector<int>>& matrix, int scale) {
+    int src_size = 12;
+    int out_size = src_size * scale;
+
+    std::ofstream f(filename, std::ios::binary);
+    if (!f.is_open()) {
+        std::cerr << "Не удалось создать BMP файл!" << std::endl;
+        return;
+    }
+
+    int row_size = out_size * 3;
+    int padding = (4 - (row_size % 4)) % 4;
+    int file_size = 54 + (row_size + padding) * out_size;
+
+    unsigned char header[54] = {0};
+    header[0] = 'B'; header[1] = 'M'; 
+    header[2] = file_size;       header[3] = file_size >> 8;   header[4] = file_size >> 16;   header[5] = file_size >> 24;
+    header[10] = 54;                  
+    header[14] = 40;                  
+    header[18] = out_size;       header[19] = out_size >> 8;   header[20] = out_size >> 16;   header[21] = out_size >> 24;
+    
+    int32_t neg_height = -out_size;
+    header[22] = neg_height;     header[23] = neg_height >> 8; header[24] = neg_height >> 16; header[25] = neg_height >> 24;
+    header[26] = 1;                   
+    header[28] = 24;                  
+
+    f.write(reinterpret_cast<char*>(header), 54);
+
+    for (int i = 0; i < src_size; ++i) {
+        for (int r = 0; r < scale; ++r) {
+            for (int j = 0; j < src_size; ++j) {
+                // Строгое условие без инверсии: 1 = Белый (255), 0 = Черный (0)
+                unsigned char color = (matrix[i][j] == 1) ? 255 : 0;
+                
+                for (int c = 0; c < scale; ++c) {
+                    f.put(color); // B
+                    f.put(color); // G
+                    f.put(color); // R
+                }
+            }
+            for (int p = 0; p < padding; ++p) f.put(0);
+        }
+    }
+
+    f.close();
+    std::cout << "\nКартинка " << filename << " успешно сохранена!" << std::endl;
 }
+
+
 
 int main(){
   int64_t num = 0;
@@ -59,59 +104,64 @@ int main(){
   QR_build qr_build(num, random_word);
   qr_build.Perfom_full_desision();
   vector<int> vec = qr_build.get_vect();
+  
   string val = to_string(num);
-  if(val.length() == 2){
-    vec.insert(vec.begin(), stoi(std::string(1, val[1])));
-    vec.insert(vec.begin(), stoi(std::string(1, val[0])));
+  string len = to_string(val.length());
+  if(val.size() > 9){
+    vec.insert(vec.begin(), stoi(std::string(1, len[1])));
+    vec.insert(vec.begin(), stoi(std::string(1, len[0])));
   } else{
-    vec.insert(vec.begin(), stoi(std::string(1, val[0])));
+    vec.insert(vec.begin(), stoi(std::string(1, len[0])));
     vec.insert(vec.begin(), 0);
   }
-  std::vector<std::vector<int>> matrix(12, std::vector<int>(12));
-  int idx1 = 0;
-  int idx2 = 0;
-  int idx3 = 0;
-  int idx4 = 0;
   for(int i = 0; i < vec.size(); i++){
-    if(idx1 == 6 || idx2 == 6){
-      if(idx1 == 6){
-        idx1 = 0;
-        idx3 = 0;
-      } else{
-        idx2 = 0;
-        idx4 = 0;
-      }
-      break;
-    }
-    string vall = toBinary(vec[i]);
-    matrix[idx3][idx4] = vall[0];
-    matrix[idx3][idx4 + 1] = vall[1];
-    matrix[idx3 + 1][idx4] = vall[2];
-    matrix[idx3][idx4 + 1] = vall[3];
-    idx1++;
-    idx3 += 2;
-    idx4 += 2;
-    idx2++;
+    std::cout << vec[i] << ' ';
   }
-  std::ofstream outFile("result.pbm");
+  std::vector<int> flat_vector;
+  flat_vector.reserve(144);
 
-  if (outFile.is_open()) {
-      outFile << "P1\n";
-      outFile << "12 12\n";
-
-      for (int i = 0; i < 12; ++i) {
-          for (int j = 0; j < 12; ++j) {
-              outFile << !matrix[i][j] << " ";
-          }
-          outFile << "\n";
+  for (int i = 0; i < 36; ++i) {
+      for (int bit = 3; bit >= 0; --bit) {
+          flat_vector.push_back((vec[i] >> bit) & 1);
       }
-
-      outFile.close();
-      std::cout << "Файл result.pbm успешно сохранен!" << std::endl;
-  } else {
-      std::cerr << "Не удалось открыть файл для записи." << std::endl;
   }
 
+  std::vector<std::vector<int>> matrix(12, std::vector<int>(12));
+
+  for (int b = 0; b < 36; ++b) {
+      int block_row = b / 6;
+      int block_col = b % 6;
+
+      int r = block_row * 2;
+      int c = block_col * 2;
+
+      int idx = b * 4;
+
+      matrix[r][c] = flat_vector[idx];
+      matrix[r][c+1] = flat_vector[idx+1];
+      matrix[r+1][c] = flat_vector[idx+2];
+      matrix[r+1][c+1] = flat_vector[idx+3];
+  }
+
+  // std::ofstream outFile("result.pbm");
+
+  // if (outFile.is_open()) {
+  //     outFile << "P1\n";
+  //     outFile << "12 12\n";
+
+  //     for (int i = 0; i < 12; ++i) {
+  //         for (int j = 0; j < 12; ++j) {
+  //             outFile << !matrix[i][j] << " ";
+  //         }
+  //         outFile << "\n";
+  //     }
+
+  //     outFile.close();
+  //     std::cout << "Файл result.pbm успешно сохранен!" << std::endl;
+  // } else {
+  //     std::cerr << "Не удалось открыть файл для записи." << std::endl;
+  // }
+  saveToBMP("qr_code.bmp", matrix, 20);
   return 0;
   
 

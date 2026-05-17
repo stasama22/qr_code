@@ -39,42 +39,33 @@ public:
             final_value[vec[i]] = random_value(0, 9);
         }        std::mt19937 gen;
     };
-    vector<int> find_duplikate(vector<int> vec){
-        std::sort(vec.begin(), vec.end());
+    vector<int> find_duplikate(std::vector<int>& vec) {
+        if (vec.size() < 2) return {};
 
-        std::vector<int> duplicates;
+        sort(vec.begin(), vec.end());
+        vector<int> duplicates;
+
         for (size_t i = 0; i < vec.size() - 1; ++i) {
             if (vec[i] == vec[i + 1]) {
                 duplicates.push_back(vec[i]);
                 vec.erase(vec.begin() + i);
-                while (i < vec.size() - 1 && vec[i] == vec[i + 1]) {
-                    vec.erase(vec.begin() + i);
-                    duplicates.push_back(vec[i]);
-                    i++;
+                if((i + 1) < vec.size()){
+                    while(vec[i] == vec[i+1] && (i + 1) < vec.size()){
+                        duplicates.push_back(vec[i]);
+                        vec.erase(vec.begin() + i);
+                        i++;
+                    }
                 }
             }
         }
-        return vec;
-    };
-    int prime(int nnn){
-        int max_val = nnn * nnn;
-        std::vector<bool> is_prime(max_val + 1, true);
-        int count = 0;
-        int val = 0;
-        for(int i = 1; i <= max_val; i++){
-
-            if(is_prime[i]){
-                count++;
-                if(count == nnn){
-                    break;
-                }
-                val = i;
-            }
-            for(int j = i * i; j <= max_val; j += i){
-                is_prime[j] = false;
-            }
+        return duplicates;
+    }
+    vector<int> prime(size_t length){
+        vector<int> vect;
+        for(size_t i = 7; i <= 7 + length; i++){
+            vect.push_back(i);
         }
-        return val;
+        return vect;
     }
     vector<int> perform_key(){ // в связи с тем что изменилось начало может быть ошибочна длинна так что это нужно испраавть
         vector<int> indexes;
@@ -87,9 +78,13 @@ public:
             if(key_val >= 3037000499){
                 key = key + to_string(key_val);
                 key_val = key_val / array1[id];
+                if(key_val > 30370004){
+                    key_val = key_val / 1902838;
+                }
                 id++;
             }
             if(len > n){
+                key = key.substr(0, n);
                 break;
             }
             key_val *= key_val;
@@ -130,16 +125,32 @@ public:
                 indexes[i] = indexes[i] % 34;
             }
         }
-        while(true){ //ошибка с логикой абсолютно неверно работает
+        int idx = 0;
+        vector<int> dupl;
+        while(true){
             vector<int> v = find_duplikate(indexes);
-            if(v.empty()){
+            if(v.empty() || idx >= 3){
+                dupl = v;
                 break;
             }
+            vector<int> vecc = prime(v.size());
             for(int i = 0; i < v.size(); i++) {
-                v[i] += prime(i);
+                v[i] += vecc[i];
                 v[i] *= v[i];
                 v[i] = v[i] % 34;
                 indexes.push_back(v[i]);
+            }
+            idx++;
+        }
+        if(dupl.size() != 0){
+            for(int i = 0; i < dupl.size(); i++){
+                sort(indexes.begin(), indexes.end());
+                for(int j = 0; j < indexes.size(); j++){
+                    if(indexes[j] != j){
+                        indexes.push_back(j);
+                        break;
+                    }
+                }
             }
         }
         return indexes;
@@ -157,28 +168,26 @@ public:
             key_val *= key_val;
         }
         string value = to_string(key_val);
-        if(length % 2 != 0){
-            int l = value.size();
-            if(l % 2 == 0){
-                value = std::string(value.begin(), value.end() - 1);
-            }
-            bool flag = true;
-            while(true){
-                int current_len = value.size();
-                if(length == current_len){
-                    break;
+        int l = value.size();
+        if(l % 2 == 0){
+            value = std::string(value.begin(), value.end() - 1);
+        }
+        bool flag = true;
+        while(true){
+            int current_len = value.size();
+            if(length == current_len){
+                break;
+            } else{
+                if (flag){
+                    value = std::string(value.begin() + 1, value.end());
+                    flag = false;
                 } else{
-                    if (flag){
-                        value = std::string(value.begin() + 1, value.end());
-                        flag = false;
-                    } else{
-                        value = std::string(value.begin(), value.end() - 1);
-                    }
+                    value = std::string(value.begin(), value.end() - 1);
                 }
             }
         }
         for(int i = 0; i < value.size(); i++){
-            indexes[i] = std::stoi(std::string(1, value[i]));
+            indexes.push_back(std::stoi(std::string(1, value[i])));
         }
         return indexes;
     }

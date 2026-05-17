@@ -16,9 +16,7 @@ private:
     int n;
     std::random_device rd;
     std::mt19937 gen;
-    vector<int> final_value;
-    vector<int64_t> array1 = {3037000480, 1518499861, 379624939, 60740005, 3037007};
-    
+    vector<int> final_value;    
 
 public:
     Encode(int n_val, int k_val) : gen(rd()) {

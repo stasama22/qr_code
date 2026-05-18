@@ -49,10 +49,9 @@ public:
                 duplicates.push_back(vec[i]);
                 vec.erase(vec.begin() + i);
                 if((i + 1) < vec.size()){
-                    while(vec[i] == vec[i+1] && (i + 1) < vec.size()){
+                    while((i + 1) < vec.size() && vec[i] == vec[i + 1]){
                         duplicates.push_back(vec[i]);
                         vec.erase(vec.begin() + i);
-                        i++;
                     }
                 }
             }
@@ -117,6 +116,7 @@ public:
                 string dub = value.substr(i, 2);
                 int j = stoi(dub);
                 indexes.push_back(j);
+
             }
         }
         for(int i = 0; i < indexes.size(); i++){
